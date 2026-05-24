@@ -24,7 +24,7 @@ jobs:
           cache: 'maven'
 
       - name: Compile Code
-        run: ./mvnw compile
+        run: mvn compile
 
   test:
     name: Test
@@ -42,7 +42,7 @@ jobs:
           cache: 'maven'
 
       - name: Run Unit Tests
-        run: ./mvnw test
+        run: mvn test
 
   code-quality:
     name: Code Quality
@@ -75,7 +75,7 @@ jobs:
           cache: 'maven'
 
       - name: Package JAR (Skip Tests)
-        run: ./mvnw package -DskipTests
+        run: mvn package -DskipTests
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -88,21 +88,11 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     needs: package
-    env:
-      DEPLOY_ENVIRONMENT: ${{ secrets.DEPLOY_ENVIRONMENT }}
-      API_TOKEN: ${{ secrets.API_TOKEN }}
-      SERVER_HOST: ${{ secrets.SERVER_HOST }}
     steps:
-      - name: Simulate Deployment Configuration
+      - name: Deploy to Render
         run: |
-          echo "Preparing deployment configuration..."
-          echo "Deployment target environment: ${DEPLOY_ENVIRONMENT:-simulation-staging}"
-          echo "Connecting to destination server: ${SERVER_HOST:-localhost}"
-          echo "Configuring environment variables using GitHub Secrets..."
-          echo "Simulation: Verifying API Token presence..."
-          if [ -n "$API_TOKEN" ]; then
-            echo "API Token is successfully loaded from GitHub Secrets."
+          if [ -n "${{ secrets.RENDER_DEPLOY_WEBHOOK_URL }}" ]; then
+            curl -X POST ${{ secrets.RENDER_DEPLOY_WEBHOOK_URL }}
           else
-            echo "API Token is not set. Using fallback configuration for testing."
+            echo "Webhook de Render no configurado aún en GitHub Secrets. Saltando despliegue real."
           fi
-          echo "Deployment completed successfully (simulated)."
