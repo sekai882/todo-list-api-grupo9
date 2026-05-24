@@ -16,6 +16,12 @@ public class TaskController {
     private final List<Task> tasks = new CopyOnWriteArrayList<>();
     private final AtomicLong idGenerator = new AtomicLong(1);
 
+    public TaskController() {
+        tasks.add(new Task(idGenerator.getAndIncrement(), "Configurar el pipeline de 5 etapas en GitHub Actions", true));
+        tasks.add(new Task(idGenerator.getAndIncrement(), "Desplegar la API en la nube usando Render y Docker", true));
+        tasks.add(new Task(idGenerator.getAndIncrement(), "Presentar el proyecto final de CI/CD al profesor", false));
+    }
+
     @GetMapping
     public List<Task> getAllTasks() {
         return tasks;
